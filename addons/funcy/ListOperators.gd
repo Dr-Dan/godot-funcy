@@ -4,6 +4,18 @@ const Op = Operators.OperatorBase
 			
 # ==============================================================================
 		
+class Defer:
+	extends Op
+	var op
+	var data
+	
+	func _init(op_, data_):
+		op = op_
+		data = data_
+		
+	func eval(data):
+		return op.eval(self.data)
+				
 class Filter:
 	extends Op
 	var op
@@ -83,3 +95,36 @@ class Reduce:
 		for i in range(2, data.size()-1):
 			result = op.eval2(result, data[i+1])
 		return result
+
+# ------------------------------------------------------------------------------
+
+class Insert:
+	var items
+	func _init(items_):
+		if not items_ is Array:
+			items_ = [items_]
+		items = items_
+		
+	func eval(data):
+		var result = [] + data
+		for d in items:
+			result.append(d)
+		return result
+
+class Pop:
+	func eval(data):
+		var result = [] + data
+		result.pop_back()
+		return result
+
+class Remove:
+	var n
+	func _init(n_:int):
+		n = n_
+		
+	func eval(data):
+		assert(n < data.size())
+		var result = [] + data
+		result.remove(n)
+		return result
+					

@@ -9,13 +9,13 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Resource",
-"class": "Opfactory",
+"base": "Reference",
+"class": "Funcy",
 "language": "GDScript",
-"path": "res://addons/funcy/OperatorFactory.gd"
+"path": "res://addons/funcy/Funcy.gd"
 } ]
 _global_script_class_icons={
-"Opfactory": ""
+"Funcy": ""
 }
 
 [application]

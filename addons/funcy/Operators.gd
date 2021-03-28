@@ -15,10 +15,6 @@ class Util:
 			return Func.new(input)
 		elif input is String:
 			return ExprArgsDeep.new(input)
-		elif input is Array:
-#			if not input.empty() and input[0] is String:
-#				return OpenMultiDeep.new(input)
-			return OperatorIterator.new(input)
 		return null
 
 	static func get_map_op(input)\
@@ -28,6 +24,8 @@ class Util:
 			return r
 		elif input is Dictionary:
 			return DictApplied.new(input)
+		elif input is Array:
+			return OperatorIterator.new(get_map_op_arr(input))
 		return null
 
 	static func get_filter_op(input)\
@@ -37,6 +35,8 @@ class Util:
 			return r
 		elif input is Dictionary:
 			return DictCompareOpen.new(input)
+		elif input is Array:
+			return And.new(get_filter_op_arr(input))
 		return null
 
 	static func get_map_op_arr(items:Array) -> Array:
@@ -430,22 +430,6 @@ class In:
 		for i in item1:
 			if item0 == i: return true
 		return false
-		
-"""
-	returns true if field in item.
-		i.e. 'item.field' exists
-"""
-class HasField:
-	extends OperatorBase
-	var field
-
-	func _init(field: String):
-		self.field = field
-
-	func eval(item):
-		if not field in item:
-			return false
-		return true
 
 
 class Contains:
@@ -788,7 +772,24 @@ class OpenIndexDeepArray:
 				
 			else: return defval
 		return result
-			
+
+					
+"""
+	returns true if field in item.
+		i.e. 'item.field' exists
+"""
+class HasField:
+	extends OpenDeep
+#	var field
+
+	func _init(field: String).(field):
+#		self.field = field
+		pass
+
+	func eval(item):
+		var r = .eval(item)
+		return r != null
+
 # returns in the order provided an array of the requested fields
 # ['name', 'age'] => ['mike', 43]
 class GetValue:
