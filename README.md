@@ -47,17 +47,6 @@ F.map(op, data)
 F.do(F.map(op), data)
 ```
 
-### List Operators
-
-map
-project
-filter
-take_while
-take
-skip
-sort
-reduce
-
 ## Installation
 
 Download from the Asset Store or Github into the addons folder.
