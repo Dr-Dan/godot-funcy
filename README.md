@@ -7,7 +7,7 @@ Provides operators that deal with lists and individual items.
 
 Similar to ramda, underscore.js
 
-Largely untested and probably slow but good for prototyping and speedy development.
+Largely untested but good for speedy prototyping.
 
 ## Usage
 
