@@ -53,6 +53,7 @@ static func pop(data=null):
 	
 # ------------------------------------------------------------------------------
 
+# wrap op, data in an operator that can be evaluated later.
 static func defer(op, data):
 	if op is Array: op = comp(op)
 	return ListOps.Defer.new(op, data)
