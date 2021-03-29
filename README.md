@@ -49,4 +49,6 @@ F.do(F.map(op), data)
 
 ## Installation
 
-Download from the Asset Store or Github into the addons folder.
+Download from the Asset Store
+
+Or place addons/Funcy in the addons folder of your project.
