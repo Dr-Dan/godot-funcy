@@ -11,9 +11,9 @@ Largely untested but good for prototyping and speedy development.
 
 ## Usage
 
-[examples...](../master/addons/funcy/examples)
+[examples...](../main/examples)
 
-[funcy file](../master/addons/funcy/Funcy.gd)
+[funcy file](../main/addons/funcy/Funcy.gd)
 
 ### Quick demo
 ```gdScript
