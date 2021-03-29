@@ -84,7 +84,7 @@ func sorting():
 	print('Sorting')
 	ex_util.pr_array('sort by age',
 		F.sort(
-			F.expr('age < _y.age', ['age']),
+			F.expr('_x.age < _y.age'),
 			F.map(F.open(['name', 'age'])).eval(name_table)))
 
 	ex_util.pr_array('sort by wealth', 

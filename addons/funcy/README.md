@@ -10,19 +10,7 @@ Similar to ramda, underscore.js
 
 [examples...](../master/addons/funcy/examples)
 
-```gdscript
-
-```
 
 ## Installation
 
 1. Download from the Asset Store or Github into the addons folder.
-
-
-map(op)
-project(input)
-filter(op)
-take_while(op)
-take(n)
-skip(n)
-sort(op)

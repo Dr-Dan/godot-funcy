@@ -1,0 +1,10 @@
+.DS_Store
+.#*
+*~
+
+# Godot-specific ignores
+.import/
+default_env.tres
+
+# Project specific
+project.godot
