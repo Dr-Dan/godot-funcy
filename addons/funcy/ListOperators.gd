@@ -79,7 +79,7 @@ class Sort:
 		op = op_
 
 	func eval(data):
-		return HeapSort.heap_sort(Operators.Util.get_filter_op(op), data)
+		return HeapSort.heap_sort(op, data)
 
 class Reduce:
 	extends Op

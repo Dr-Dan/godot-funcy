@@ -28,14 +28,15 @@ static func take_while(op, data=null) -> OpBase:
 	op = Operators.Util.get_filter_op(op)
 	return process_op(ListOps.TakeWhile.new(op), data)
 
-static func take(n, data=null) -> OpBase:
+static func take(n:int, data=null) -> OpBase:
 	return process_op(ListOps.Slice.new(0, n-1), data)
 
-static func skip(n, data=null) -> OpBase:
+static func skip(n:int, data=null) -> OpBase:
 	return process_op(ListOps.Slice.new(n, -1), data)
 	
+# op translated to filter-op	
 static func sort(op, data=null) -> OpBase:
-	return process_op(ListOps.Sort.new(op), data)
+	return process_op(ListOps.Sort.new(Operators.Util.get_filter_op(op)), data)
  
 # ------------------------------------------------------------------------------
 
@@ -60,18 +61,22 @@ static func do(op, data):
 	if op is Array: op = comp(op)
 	return op.eval(data)
 	
+# find first item where op returns true	
 static func first(op, data=null):
 	return filter(op, data).front()
 
+# same as first but returns last valid item 
 static func last(op, data=null):
 	return filter(op, data).back()
 
+# fold a list using op to combine items.
+# 	op will need to implement eval2
 static func reduce(op, data=null):
 	op = Operators.Util.get_map_op(op)
 	return process_op(ListOps.Reduce.new(op), data)
 
 # ------------------------------------------------------------------------------
-	
+# runs each op in 'ops' (in order) and passes result to the next.	
 static func comp(ops:Array, data=null) -> OpBase:
 	return process_op(Operators.OperatorIterator.new(ops), data)
 
@@ -107,6 +112,8 @@ static func all(items: Array) -> OpBase:
 static func any(items: Array) -> OpBase:
 	return or_(Operators.Util.get_filter_op_arr(items))
 
+# invert the result of 'op'
+# op should return a boolean
 static func not_(op) -> OpBase:
 	return Operators.Not.new(Operators.Util.get_filter_op(op))
 			
@@ -154,10 +161,10 @@ static func lteq(item=0) -> OpBase:
 # ------------------------------------------------------------------------------
 
 # preds: a dictionary in the form {field0=some_op_or_value_to_compare, ...}
-# _any: if true, return true if any fields are valid; false by default
-# _fail_missing: fail if any field not found
-static func dict_cmpr(preds:Dictionary, _any=false, _fail_missing=true) -> OpBase:
-	return Operators.DictCompareOpen.new(preds, _any, _fail_missing)
+# any: if true, return true if any fields are valid; false by default
+# fail_missing: fail if any field not found
+static func dict_cmpr(preds:Dictionary, any=false, fail_missing=true) -> OpBase:
+	return Operators.DictCompareOpen.new(preds, any, fail_missing)
 
 # input: a dictionary as above but only accepting operators as values
 # other: the fields to select alongside those stated in input
@@ -194,14 +201,18 @@ static func has(item) -> OpBase:
 
 # ------------------------------------------------------------------------------
 
-static func func_(obj:Object, func_name:String, args=[]) -> OpBase:
+# call a function on obj
+static func fn(obj:Object, func_name:String, args=[]) -> OpBase:
 	var fn = funcref(obj, func_name)
 	return Operators.Func.new(fn, args)
 
+# call a function on the target item
+# return_item: if true; return the queried item instead of the output from the func
 static func call_fn(func_name:String, args=[], return_item=false) -> OpBase:
 	return Operators.CallFunc.new(func_name, args, return_item)
 	
-static func func_as_args(obj:Object, func_name:String) -> OpBase:
+# pass the item (must be an Array) to a function using each element as an argument
+static func fn_as_args(obj:Object, func_name:String) -> OpBase:
 	var fn = funcref(obj, func_name)
 	return Operators.FuncAsArgs.new(fn)
 
@@ -216,6 +227,11 @@ static func expr(expr_str:String, fields=null, target=null) -> OpBase:
 
 # ------------------------------------------------------------------------------
 
+# expects an array or a Dictionary
+# if taking a dictionary; will remap names into the output
+#	i.e. {name='new_name'} => {new_name='what_the_name_was_in_the_item'}
+# if an Array is used; return a dict containing those fields
+#	i.e. ['name', 'age'] => {name='child', age=10}
 static func open(field) -> OpBase:
 	if field is Array:
 		return Operators.OpenMultiDeep.new(field)
@@ -230,6 +246,11 @@ static func open_one(field:String) -> OpBase:
 static func open_val(fields:Array) -> OpBase:
 	return Operators.GetValue.new(fields)
 	
+# get the value at an index in an Array	
+# field should be an Array, String or Number
+# 	String can contain slashes for nested arrays i.e. '0/1' = [0][1]
+# 	Array can contain a combination of accepted arguments mentioned above.
+# defval: what to return if a value is not found at the given index
 static func open_idx(field, defval=null) -> OpBase:
 	if field is Array:
 		return Operators.OpenIndexMultiDeep.new(field, defval)

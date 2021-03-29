@@ -22,7 +22,12 @@ func _run():
 	ex_util.pr_break('#')
 	print("Using a collection of primitives (int)\n")
 	ex_util.pr_break()
-	operators()
+	run_queries()
+	
+	ex_util.pr_break('#')
+	print("Reducing and sorting\n")
+	ex_util.pr_break()
+	reduce_and_sort()
 
 # ==============================================================	
 
@@ -105,7 +110,7 @@ var filter_ops = [
 	},
 	{
 		msg='x < 6', 
-		op=F.func_(self, 'less_than_6')
+		op=F.fn(self, 'less_than_6')
 	},
 ]
 var map_ops = [
@@ -139,11 +144,11 @@ var map_ops = [
 	{
 		# additional args passed to function
 		msg='x + y',
-		op=F.func_(self, 'plus_xy', [2]),
+		op=F.fn(self, 'plus_xy', [2]),
 	},
 	{
 		msg='x*y*z',
-		op=F.func_(self, 'mult_xyz', [5, 10]),
+		op=F.fn(self, 'mult_xyz', [5, 10]),
 	},
 	{
 		# use a class that derives from OperatorBase (^above)
@@ -155,13 +160,13 @@ var map_ops = [
 		msg='(((x + 3) + y) > 8)',
 		op=F.comp([
 			F.expr('_x + 3'),
-			F.func_(self, 'plus_xy', [2])])
+			F.fn(self, 'plus_xy', [2])])
 	},
 	{
 		# dict_apply returns a Dictionary
 		#  it will create new fields if they do not exist (in the data)
 		msg='dict_apply => {}\n',
-		# an Array will be treated as F.comp()
+		# an Array will be treated as comp()
 		op=[F.expr('_x + 3'),
 			F.dict_apply({value=F.identity(), is_even=F.even()})]
 		},
@@ -175,7 +180,7 @@ var map_ops = [
 
 # ---------------------------------------------------------------------
 					
-func operators():
+func run_queries():
 	var data = range(10)
 	
 	prints('data:', data)
@@ -195,20 +200,22 @@ func operators():
 		printt(m.msg, F.map(m.op, data))
 	ex_util.pr_break('=')
 
+func reduce_and_sort():
 	# ---------------------------------------------------------------------
-	
+	var data = range(10)
 	# ittr (iterator) passes the next item and previous result to the operator
 	# in this case; adding them together
 	# for this reason the function 'plus_xy' must take 2 args
 	printt('add all items:',
-		F.reduce(F.func_(self, 'plus_xy'), data))
+		F.reduce(F.fn(self, 'plus_xy'), data))
 
 	# reduce returns the last result from ittr
+	# slice to avoid multiplying by 0
 	printt('product:',
 		F.reduce(F.expr('_x * _y'), data.slice(1,-1)))
 
 	# not all operators will work with sort, ittr, reduce
-	# expr, func_, lt/gt/eq for this purpose
+	# expr, fn, lt/gt/eq for this purpose
 	ex_util.pr_break()
 	
 	print('Sorting\n')

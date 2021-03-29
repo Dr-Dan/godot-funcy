@@ -82,24 +82,17 @@ func evaluation():
 
 func sorting():
 	print('Sorting')
-	var names_and_ages = F.do(
-		F.map(
-			F.open(['name', 'age'])),
-		name_table)
 	ex_util.pr_array('sort by age',
 		F.sort(
 			F.expr('age < _y.age', ['age']),
-			names_and_ages))
+			F.map(F.open(['name', 'age'])).eval(name_table)))
 
-			
-	# filter will remove null entries. F into the sort
-	# F will handle different input types automatically.
-	#   This is explained in depth in the chaining example
-#	ex_util.pr_array('sort by wealth', 
-#					 F.F()\
-#					 .filter(F.open_one('inv/money/coin'))\
-#					 .map(['name', 'inv/money/coin'])\
-#					 .sort('_x.coin > _y.coin', name_table))
+	ex_util.pr_array('sort by wealth', 
+		F.comp([
+			F.filter(F.has('inv/money/coin')),
+			F.map(F.open(['name', 'inv/money/coin'])),
+			F.sort('_x.coin > _y.coin')], 
+			name_table))
 	
 # ==============================================================	
 
@@ -123,8 +116,7 @@ class Add:
 func open_operators():
 	var queries = [
 		{
-			# if open is called with a single arg (String) 
-			#   get the value of a field from each item
+			# get one value of a field from each item
 			msg='all names',
 			tdx=F.map(F.open_one('name'))
 		},
@@ -136,9 +128,9 @@ func open_operators():
 			tdx=F.map(F.open(['inv/weapon', 'name', 'age']))
 		},
 			{
-			#  if called with Dictionary
-			#  	 will write results to the key
-			msg='open (my) stuff',
+			#  if 'open' is called with Dictionary
+			#  	 will write results to the keys given
+			msg='open + rename',
 			tdx=F.map(F.open({my_wpns='inv/weapon', my_age='age'}))
 		},
 		{
@@ -159,7 +151,7 @@ func open_operators():
 				F.filter(
 					# dict_c(o)mp(a)r(e) looks for a given field in the dictionary
 					#   and validates it using an op.
-					# values can be used and will be wrapped: {field=2} => {field=ops.eq(2)}
+					# non-op values are wrapped; {field=2} => {field=ops.eq(2)}
 					# you can use slashes in dict_cmpr
 					F.dict_cmpr({'inv/money/coin':F.gteq(250)})),
 				F.project(['name', 'inv/money'])])
@@ -168,8 +160,7 @@ func open_operators():
 			# expressions follow the same principle
 			msg='age:coin ratio',
 			tdx=F.comp([
-				F.filter(
-					F.expr('coin != null', 'inv/money/coin')),
+				F.filter(F.expr('coin != null', 'inv/money/coin')),
 				F.map(F.dict_apply({
 					age_coin_ratio=F.expr('age/float(coin)', ['inv/money/coin', 'age'])},
 					['name']))])
@@ -249,11 +240,6 @@ func more_transducers():
 		F.filter(F.is_(Human)),
 		F.map(F.call_fn('speak'))],
 		name_table)
-
-# ==============================================================	
-
-func get_funcy():
-	pass
 
 # ==============================================================
 
