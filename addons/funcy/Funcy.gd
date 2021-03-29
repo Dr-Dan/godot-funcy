@@ -10,6 +10,8 @@ static func process_op(list_cls, data=null):
 	return list_cls
 
 # ==============================================================================
+# List Operations
+# if data argument is non null then operators are evaluated
 
 static func map(op, data=null) -> OpBase:
 	op = Operators.Util.get_map_op(op)
@@ -94,8 +96,9 @@ static func comp_m(ops:Array, data=null) -> OpBase:
 static func comp_exit(ops:Array, exit_op:OpBase, data=null) -> OpBase:
 	return process_op(Operators.OperatorIterator.new(ops, exit_op), data)
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 
+# expect an Array of operators
 static func and_(items: Array) -> OpBase:
 	return Operators.And.new(items)
 
@@ -103,6 +106,7 @@ static func or_(items: Array) -> OpBase:
 	return Operators.Or.new(items)
 
 # ------------------------------------------------------------------------------
+# all/any are the same as and/or but convert input to filter-op
 
 # return true if all ops eval to true. Exits early.
 static func all(items: Array) -> OpBase:

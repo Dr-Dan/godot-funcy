@@ -188,6 +188,8 @@ func run_queries():
 	
 	printt('filter\n')
 
+	# note that calling ListOps (filter, map etc) with data as the last argument 
+	#	will cause evaluation.
 	# filter returns all in data where the op returns true
 	for f in filter_ops:
 		printt(f.msg, F.filter(f.op, data))
@@ -203,13 +205,12 @@ func run_queries():
 func reduce_and_sort():
 	# ---------------------------------------------------------------------
 	var data = range(10)
-	# ittr (iterator) passes the next item and previous result to the operator
+	# reduce passes the next item and previous result to each operator
 	# in this case; adding them together
 	# for this reason the function 'plus_xy' must take 2 args
 	printt('add all items:',
 		F.reduce(F.fn(self, 'plus_xy'), data))
 
-	# reduce returns the last result from ittr
 	# slice to avoid multiplying by 0
 	printt('product:',
 		F.reduce(F.expr('_x * _y'), data.slice(1,-1)))
