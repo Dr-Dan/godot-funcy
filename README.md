@@ -12,6 +12,7 @@ Largely untested but good for prototyping and speedy development.
 ## Usage
 
 [examples...](../master/addons/funcy/examples)
+
 [funcy file](../master/addons/funcy/Funcy.gd)
 
 ### Quick demo
