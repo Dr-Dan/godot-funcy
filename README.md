@@ -7,7 +7,7 @@ Provides operators that deal with lists and individual items.
 
 Similar to ramda, underscore.js
 
-Largely untested and probably slow but good for prototyping and speedy development.
+Largely untested but good for speedy prototyping.
 
 ## Usage
 
@@ -24,9 +24,6 @@ F.map(F.open(['inv/weapon', 'name', 'age']))
 
 # get only the items that pass validation
 F.filter(F.all([F.gt(4), F.lteq(9)]))
-
-F.expr('_x.age < _y.age'), 
-F.fn(self, 'plus_xy', [2]), 
 
 # compose operators
 F.comp([
