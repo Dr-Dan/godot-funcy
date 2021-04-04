@@ -3,7 +3,8 @@
 *~
 
 # Godot-specific ignores
-.import/
+import/
+*.import
 default_env.tres
 
 # Project specific
