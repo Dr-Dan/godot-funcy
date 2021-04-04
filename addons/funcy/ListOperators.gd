@@ -90,7 +90,10 @@ class Reduce:
 		op = op_
 
 	func eval(data):
-		assert(data.size() > 1)
+#		assert(data.size() > 1)
+		if data.size() < 2:
+			assert(not data.empty())
+			return data[0]
 		var result = op.eval2(data[0], data[1])
 		for i in range(2, data.size()-1):
 			result = op.eval2(result, data[i+1])
@@ -98,7 +101,33 @@ class Reduce:
 
 # ------------------------------------------------------------------------------
 
+class Zip:
+	extends Op
+
+	func eval(data):
+		assert(data.size() == 2)
+		var result = []
+		for i in data[0].size():
+			result.append([data[0][i], data[1][i]])
+		return result
+		
+class ZipOp:
+	extends Op
+	
+	var op
+	
+	func _init(op_):
+		op = op_
+
+	func eval(data):
+		assert(data.size() == 2)
+		var result = []
+		for i in data[0].size():
+			result.append(op.eval2(data[0][i], data[1][i]))
+		return result
+				
 class Insert:
+	extends Op
 	var items
 	func _init(items_):
 		if not items_ is Array:
@@ -111,13 +140,23 @@ class Insert:
 			result.append(d)
 		return result
 
+class Invert:
+	extends Op
+	
+	func eval(data):
+		var result = [] + data
+		result.invert()
+		return result
+
 class Pop:
+	extends Op
 	func eval(data):
 		var result = [] + data
 		result.pop_back()
 		return result
 
 class Remove:
+	extends Op
 	var n
 	func _init(n_:int):
 		n = n_

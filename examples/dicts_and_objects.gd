@@ -24,7 +24,7 @@ func _run():
 	sorting()
 
 	ex_util.pr_break('=')
-	more_transducers()
+	more()
 	
 	ex_util.pr_break('=')
 	example_enumerate()
@@ -84,13 +84,13 @@ func sorting():
 	print('Sorting')
 	ex_util.pr_array('sort by age',
 		F.sort(
-			F.expr('_x.age < _y.age'),
+			F.expr('age < _y.age', ['age']),
 			F.map(F.open(['name', 'age'])).eval(name_table)))
 
 	ex_util.pr_array('sort by wealth', 
 		F.comp([
 			F.filter(F.has('inv/money/coin')),
-			F.map(F.open(['name', 'inv/money/coin'])),
+			F.project(['name', 'inv/money/coin']),
 			F.sort('_x.coin > _y.coin')], 
 			name_table))
 	
@@ -116,7 +116,7 @@ class Add:
 func open_operators():
 	var queries = [
 		{
-			# get one value of a field from each item
+			# get the value of a field from each item
 			msg='all names',
 			tdx=F.map(F.open_one('name'))
 		},
@@ -135,7 +135,7 @@ func open_operators():
 		},
 		{
 			#  open_val(alue) returns just the resulting values in an Array
-			# i.e. [v0, v1] instead of [{k0:v0}, {k1:v1}]
+			# i.e. [v0, v1] instead of [{k0:v0}, {k1:v1}] for each
 			msg='view weapons, name and age => []',
 			tdx=F.map(F.open_val(['name', 'age', 'inv/weapon']))
 		},
@@ -152,7 +152,7 @@ func open_operators():
 					# dict_c(o)mp(a)r(e) looks for a given field in the dictionary
 					#   and validates it using an op.
 					# non-op values are wrapped; {field=2} => {field=ops.eq(2)}
-					# you can use slashes in dict_cmpr
+					# you can use slashes in the key
 					F.dict_cmpr({'inv/money/coin':F.gteq(250)})),
 				F.project(['name', 'inv/money'])])
 		},
@@ -195,10 +195,10 @@ func open_operators():
 		
 # ==============================================================	
 
-func more_transducers():
+func more():
 	var value=30000
 	var value_qry = F.comp([
-		F.filter(F.dict_cmpr({value=F.gteq(value)})),
+		F.filter({value=F.gteq(value)}),
 		F.project(["addr_id", "street", "value"])])
 
 	ex_util.pr_array("house value > %d" % value,
@@ -212,7 +212,7 @@ func more_transducers():
 	# select any person where the addr_id is in addrs
 	var homeowners = F.do(
 		F.comp([
-			F.filter(F.dict_cmpr({addr_id=F.in_(addrs)})),
+			F.filter({addr_id=F.in_(addrs)}),
 			F.project(["name", "addr_id"])]),
 		name_table)
 

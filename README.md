@@ -23,15 +23,19 @@ const F = Funcy
 F.map(F.open(['inv/weapon', 'name', 'age']))
 
 # get only the items that pass validation
-F.filter(F.and_([F.gt(4), F.lteq(9)]))
+F.filter(F.all([F.gt(4), F.lteq(9)]))
 
 F.expr('_x.age < _y.age'), 
 F.fn(self, 'plus_xy', [2]), 
 
 # compose operators
 F.comp([
-    F.expr('_x + 3'),
-    F.fn(self, 'plus_xy', [2])])
+    # map, filter
+    F.map([
+        F.expr('_x + 3'),
+        F.fn(self, 'plus_xy', [2])]),
+    F.filter(F.gt(5))
+    ])
 ```
 
 ### eval

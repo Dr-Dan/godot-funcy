@@ -1,10 +1,12 @@
 class_name Funcy
 
+# NOTE: descriptions here relate to the returned object not the functions themselves
+
 const ListOps = preload("ListOperators.gd")
 const Operators = preload("Operators.gd")
 const OpBase = Operators.OperatorBase
 
-static func process_op(list_cls, data=null):
+static func maybe_eval(list_cls, data=null):
 	if data != null:
 		return list_cls.eval(data)
 	return list_cls
@@ -15,7 +17,7 @@ static func process_op(list_cls, data=null):
 
 static func map(op, data=null) -> OpBase:
 	op = Operators.Util.get_map_op(op)
-	return process_op(ListOps.Map.new(op), data)
+	return maybe_eval(ListOps.Map.new(op), data)
 
 static func project(input, data=null) -> OpBase:
 	if input is String:
@@ -24,32 +26,44 @@ static func project(input, data=null) -> OpBase:
 		
 static func filter(op, data=null) -> OpBase:
 	op = Operators.Util.get_filter_op(op)
-	return process_op(ListOps.Filter.new(op), data)
+	return maybe_eval(ListOps.Filter.new(op), data)
 
 static func take_while(op, data=null) -> OpBase:
 	op = Operators.Util.get_filter_op(op)
-	return process_op(ListOps.TakeWhile.new(op), data)
+	return maybe_eval(ListOps.TakeWhile.new(op), data)
 
 static func take(n:int, data=null) -> OpBase:
-	return process_op(ListOps.Slice.new(0, n-1), data)
+	return maybe_eval(ListOps.Slice.new(0, n-1), data)
 
 static func skip(n:int, data=null) -> OpBase:
-	return process_op(ListOps.Slice.new(n, -1), data)
+	return maybe_eval(ListOps.Slice.new(n, -1), data)
+
+static func slice(start:int, finish:int, data=null) -> OpBase:
+	return maybe_eval(ListOps.Slice.new(start, finish), data)
 	
 # op translated to filter-op	
 static func sort(op, data=null) -> OpBase:
-	return process_op(ListOps.Sort.new(Operators.Util.get_filter_op(op)), data)
+	return maybe_eval(ListOps.Sort.new(Operators.Util.get_filter_op(op)), data)
  
 # ------------------------------------------------------------------------------
 
+static func zip(op=null, data=null):
+	if op != null:	
+		return maybe_eval(ListOps.ZipOp.new(op), data)
+	return maybe_eval(ListOps.Zip.new(), data)
+	
+# ------------------------------------------------------------------------------
+static func invert(data=null):
+	return maybe_eval(ListOps.Invert.new(), data)
+	
 static func insert(item, data=null):
-	return process_op(ListOps.Insert.new(item), data)
+	return maybe_eval(ListOps.Insert.new(item), data)
 	
 static func remove(item, data=null):
-	return process_op(ListOps.Remove.new(item), data)
+	return maybe_eval(ListOps.Remove.new(item), data)
 	
 static func pop(data=null):
-	return process_op(ListOps.Pop.new(), data)
+	return maybe_eval(ListOps.Pop.new(), data)
 	
 # ------------------------------------------------------------------------------
 
@@ -76,46 +90,31 @@ static func last(op, data=null):
 # 	op will need to implement eval2
 static func reduce(op, data=null):
 	op = Operators.Util.get_map_op(op)
-	return process_op(ListOps.Reduce.new(op), data)
+	return maybe_eval(ListOps.Reduce.new(op), data)
 
 # ------------------------------------------------------------------------------
 # runs each op in 'ops' (in order) and passes result to the next.	
 static func comp(ops:Array, data=null) -> OpBase:
-	return process_op(Operators.OperatorIterator.new(ops), data)
-
-# same as comp but translates input to filter-ops
-static func comp_f(ops:Array, data=null) -> OpBase:
-	return comp(
-		Operators.Util.get_filter_op_arr(ops), data)
-		
-# same as comp but translates input to map-ops
-static func comp_m(ops:Array, data=null) -> OpBase:
-	return comp(
-		Operators.Util.get_map_op_arr(ops), data)
+	return maybe_eval(Operators.OperatorIterator.new(
+		Operators.Util.get_map_op_arr(ops)), data)
 
 # runs exit_op.eval for each and exits early if it returns false
 static func comp_exit(ops:Array, exit_op:OpBase, data=null) -> OpBase:
-	return process_op(Operators.OperatorIterator.new(ops, exit_op), data)
+	return maybe_eval(Operators.OperatorIterator.new(
+		Operators.Util.get_map_op_arr(ops), exit_op), data)
 
 # ==============================================================================
 
 # expect an Array of operators
-static func and_(items: Array) -> OpBase:
-	return Operators.And.new(items)
-
-static func or_(items: Array) -> OpBase:
-	return Operators.Or.new(items)
-
-# ------------------------------------------------------------------------------
-# all/any are the same as and/or but convert input to filter-op
-
 # return true if all ops eval to true. Exits early.
 static func all(items: Array) -> OpBase:
-	return and_(Operators.Util.get_filter_op_arr(items))
+	return Operators.And.new(Operators.Util.get_filter_op_arr(items))
 
 # return true if any ops eval to true. Exits early.
 static func any(items: Array) -> OpBase:
-	return or_(Operators.Util.get_filter_op_arr(items))
+	return Operators.Or.new(Operators.Util.get_filter_op_arr(items))
+
+# ------------------------------------------------------------------------------
 
 # invert the result of 'op'
 # op should return a boolean
@@ -138,7 +137,9 @@ static func value(val) -> OpBase:
 static func identity() -> OpBase:
 	return Operators.Identity.new()
 	
-# ------------------------------------------------------------------------------
+# ==============================================================================
+# SINGLE OPERATORS
+# expect a single object/primitive
 
 static func even() -> OpBase:
 	return Operators.Even.new()
@@ -157,11 +158,14 @@ static func lt(item=0) -> OpBase:
 static func eq(item=0) -> OpBase:
 	return Operators.Eq.new(item)
 
+static func hash_eq(item:Dictionary={}) -> OpBase:
+	return Operators.HashEq.new(item)
+
 static func gteq(item=0) -> OpBase:
-	return or_([gt(item), eq(item)])
+	return any([gt(item), eq(item)])
 	
 static func lteq(item=0) -> OpBase:
-	return or_([lt(item), eq(item)])
+	return any([lt(item), eq(item)])
 
 # ------------------------------------------------------------------------------
 
@@ -183,7 +187,7 @@ static func dict_apply(input:Dictionary, other=[], open_if_found=false) -> OpBas
 static func if_(pred, then, else_) -> OpBase:
 	return Operators.RunIf.new(pred, then, else_)
 	
-static func run(field, op) -> OpBase:
+static func doto(field, op) -> OpBase:
 	return Operators.RunOp.new(field, op)
 
 # ------------------------------------------------------------------------------
@@ -238,7 +242,9 @@ static func expr(expr_str:String, fields=null, target=null) -> OpBase:
 # if an Array is used; return a dict containing those fields
 #	i.e. ['name', 'age'] => {name='child', age=10}
 static func open(field) -> OpBase:
-	if field is Array:
+	if field is String: 
+		return Operators.OpenMultiDeep.new([field])
+	elif field is Array:
 		return Operators.OpenMultiDeep.new(field)
 	assert(field is Dictionary)
 	return Operators.OpenMultiDeepDict.new(field)

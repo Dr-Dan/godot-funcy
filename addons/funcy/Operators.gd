@@ -12,7 +12,7 @@ class Util:
 		if input is OperatorBase:
 			return input
 		elif input is FuncRef:
-			return Func.new(input)
+			return Func.new(input)		
 		elif input is String:
 			return ExprArgsDeep.new(input)
 		return null
@@ -275,7 +275,7 @@ class DictApplied:
 class And:
 	extends OperatorBase
 	var cmps
-	func _init(cmps:Array=[]):
+	func _init(cmps=[]):
 		self.cmps = cmps
 		
 	func eval(item):
@@ -302,7 +302,7 @@ class And:
 class Or:
 	extends OperatorBase
 	var cmps
-	func _init(cmps:Array=[]):
+	func _init(cmps=[]):
 		self.cmps = cmps
 		
 	func eval(item):
@@ -410,6 +410,19 @@ class Eq:
 		
 	func eval2(item0, item1):
 		return item0 == item1
+		
+class HashEq:
+	extends OperatorBase
+	var val
+	func _init(val=null):
+		self.val = val
+		
+	func eval(item):
+		return eval2(item, val)
+		
+	func eval2(item0, item1):
+		return item0.hash() == item1.hash()
+		
 
 # ------------------------------------------------------------ 
 # COLLECTION OPERATORS

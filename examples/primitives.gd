@@ -96,10 +96,10 @@ var filter_ops = [
 	},
 	{
 		# some F can wrap others	
-		# and_ takes a list of any size
-		# F.or_([F]) can also be called
+		# all takes a list of any size
+		# F.any([F]) can also be called
 		msg='4 < x <= 9', 
-		op=F.and_([F.gt(4), F.lteq(9)])
+		op=F.all([F.gt(4), F.lteq(9)])
 	},
 	{
 		# use an expression operator
@@ -166,7 +166,7 @@ var map_ops = [
 		# dict_apply returns a Dictionary
 		#  it will create new fields if they do not exist (in the data)
 		msg='dict_apply => {}\n',
-		# an Array will be treated as comp()
+		# an Array will be treated as comp([]) in map
 		op=[F.expr('_x + 3'),
 			F.dict_apply({value=F.identity(), is_even=F.even()})]
 		},
@@ -178,6 +178,20 @@ var map_ops = [
 	},
 ]
 
+var list_ops = [
+	{
+		msg='take while x < 4',
+		op=F.take_while(F.expr('_x < 4'))
+	},
+	{
+		msg='x > 4 -> x * x -> {value=x}',
+		op=[F.filter(F.gt(4)), F.map(['_x*_x', {value=F.identity()}])]
+	},
+	{
+		msg='invert data -> 8 > x >= 5',
+		op=[F.invert(), F.filter([F.lt(8), F.gteq(5)])]
+	}
+]
 # ---------------------------------------------------------------------
 					
 func run_queries():
@@ -201,6 +215,12 @@ func run_queries():
 	for m in map_ops:
 		printt(m.msg, F.map(m.op, data))
 	ex_util.pr_break('=')
+	
+	printt('list-operators\n')
+	for m in list_ops:
+		printt(m.msg, F.do(m.op, data))
+	ex_util.pr_break('=')
+
 
 func reduce_and_sort():
 	# ---------------------------------------------------------------------
