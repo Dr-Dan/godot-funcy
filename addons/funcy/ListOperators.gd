@@ -95,8 +95,8 @@ class Reduce:
 			assert(not data.empty())
 			return data[0]
 		var result = op.eval2(data[0], data[1])
-		for i in range(2, data.size()-1):
-			result = op.eval2(result, data[i+1])
+		for i in range(2, data.size()):
+			result = op.eval2(result, data[i])
 		return result
 
 # ------------------------------------------------------------------------------
