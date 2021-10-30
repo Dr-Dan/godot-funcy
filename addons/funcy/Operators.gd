@@ -410,7 +410,7 @@ class Eq:
 		
 	func eval2(item0, item1):
 		return item0 == item1
-		
+
 class HashEq:
 	extends OperatorBase
 	var val
@@ -516,9 +516,9 @@ class CallFunc:
 	var args:Array
 	var return_item = false
 	
-	func _init(fn_name_:String, args:Array=[], return_item_=false):
+	func _init(fn_name_:String, args_:Array=[], return_item_=false):
 		fn_name = fn_name_
-		args = args
+		args = args_
 		return_item = return_item_
 		
 	func eval(item):
